@@ -48,6 +48,7 @@ let target = getDailyTarget(daySeed);
 let guesses = [];
 let infiniteMode = false;
 let infiniteRound = 0;
+let infiniteTargets = [];
 const input = document.querySelector("#guess-input");
 const suggestions = document.querySelector("#suggestions");
 const list = document.querySelector("#guess-list");
@@ -74,6 +75,18 @@ function getDailyTarget(seed) {
   }
 
   return rotation[seed % rotation.length];
+}
+
+function getInfiniteTargets() {
+  const rotation = [...characters];
+  const random = seededRandom(daySeed ^ 0x1f123bb5);
+  for (let index = rotation.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(random() * (index + 1));
+    [rotation[index], rotation[swapIndex]] = [rotation[swapIndex], rotation[index]];
+  }
+  const dailyIndex = rotation.findIndex((character) => character.name === getDailyTarget(daySeed).name);
+  if (dailyIndex >= 0) rotation.splice(dailyIndex, 1);
+  return rotation;
 }
 
 document.querySelector("#date-label").textContent = date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }).toUpperCase();
@@ -241,7 +254,8 @@ function submitGuess() {
 function startInfiniteMode() {
   infiniteMode = true;
   infiniteRound = 0;
-  target = getDailyTarget(daySeed + infiniteRound + 1);
+  infiniteTargets = getInfiniteTargets();
+  target = infiniteTargets[infiniteRound];
   resetRound();
 }
 
@@ -254,7 +268,8 @@ function resetRound() {
   document.querySelector("#attempt-count").textContent = "0";
   document.querySelector("#message").textContent = "";
   document.querySelector("#message").className = "message";
-  document.querySelector(".panel-topline span:first-child").textContent = `INFINITE MODE // ROUND ${String(infiniteRound + 1).padStart(2, "0")}`;
+  document.querySelector("#mode-label").textContent = `INFINITE MODE // ROUND ${String(infiniteRound + 1).padStart(2, "0")}`;
+  document.querySelector("#mode-banner").hidden = !infiniteMode;
   resultScreen.hidden = true;
   document.body.classList.remove("case-complete");
   input.focus();
@@ -290,7 +305,7 @@ document.querySelector("#close-result").addEventListener("click", () => {
 });
 document.querySelector("#continue-infinite").addEventListener("click", () => {
   infiniteRound += 1;
-  target = getDailyTarget(daySeed + infiniteRound + 1);
+  target = infiniteTargets[infiniteRound];
   resetRound();
 });
 document.querySelector("#infinite-mode-launch").addEventListener("click", startInfiniteMode);
