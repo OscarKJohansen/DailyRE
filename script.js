@@ -293,6 +293,7 @@ document.querySelector("#continue-infinite").addEventListener("click", () => {
   target = getDailyTarget(daySeed + infiniteRound + 1);
   resetRound();
 });
+document.querySelector("#infinite-mode-launch").addEventListener("click", startInfiniteMode);
 document.querySelector("#result-screen .case-card").addEventListener("click", startInfiniteMode);
 document.querySelector("#share-result").addEventListener("click", async () => {
   const text = `OUTBREAK // DAILY RESIDENT EVIL\nCASE #${String(caseNumber).padStart(5, "0")} ${target.name} identified in ${guesses.length}/6 attempts.`;
