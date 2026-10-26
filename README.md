@@ -8,7 +8,8 @@ Open `index.html` in a browser. No build step or package installation is require
 
 ## Included
 
-- Deterministic daily target selected from the character archive
+- Deterministic daily target selected from a shuffled character rotation
+- No character repeats for 39 days with the current archive
 - 39 indexed Resident Evil characters
 - Search suggestions and keyboard submission
 - Era, role, affiliation, and debut-year feedback

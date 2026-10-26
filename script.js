@@ -42,7 +42,7 @@ const characters = [
 
 const date = new Date();
 const daySeed = Math.floor(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / 86400000);
-const target = characters[(daySeed * 7) % characters.length];
+const target = getDailyTarget(daySeed);
 let guesses = [];
 const input = document.querySelector("#guess-input");
 const suggestions = document.querySelector("#suggestions");
@@ -50,6 +50,27 @@ const list = document.querySelector("#guess-list");
 const message = document.querySelector("#message");
 const storageKey = `outbreak-${daySeed}`;
 const resultScreen = document.querySelector("#result-screen");
+
+function seededRandom(seed) {
+  let value = seed + 0x6d2b79f5;
+  return () => {
+    value = Math.imul(value ^ (value >>> 15), value | 1);
+    value ^= value + Math.imul(value ^ (value >>> 7), value | 61);
+    return ((value ^ (value >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function getDailyTarget(seed) {
+  const rotation = [...characters];
+  const random = seededRandom(20261026);
+
+  for (let index = rotation.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(random() * (index + 1));
+    [rotation[index], rotation[swapIndex]] = [rotation[swapIndex], rotation[index]];
+  }
+
+  return rotation[seed % rotation.length];
+}
 
 document.querySelector("#date-label").textContent = date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }).toUpperCase();
 document.querySelector("#case-number").textContent = `#${String(daySeed % 1000).padStart(5, "0")}`;
@@ -147,6 +168,11 @@ function updateCountdown() {
   document.querySelector("#countdown").textContent = `${hours}:${minutes}:${seconds}`;
 }
 updateCountdown(); setInterval(updateCountdown, 1000);
+setInterval(() => {
+  const currentDate = new Date();
+  const currentDaySeed = Math.floor(Date.UTC(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate()) / 86400000);
+  if (currentDaySeed !== daySeed) window.location.reload();
+}, 60000);
 
 document.querySelector("#close-result").addEventListener("click", () => {
   resultScreen.hidden = true;
