@@ -161,17 +161,24 @@ function showPortrait() {
   const portrait = document.querySelector("#result-portrait");
   const fallback = document.querySelector("#portrait-fallback");
   const filename = target.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  const imageSources = [`images/characters/${filename}.webp`, `images/characters/${filename}.jpg`];
+  let sourceIndex = 0;
   portrait.alt = `${target.name} archive portrait`;
-  portrait.src = `images/characters/${filename}.jpg`;
   fallback.textContent = target.initials;
   portrait.onload = () => {
     portrait.hidden = false;
     fallback.hidden = true;
   };
   portrait.onerror = () => {
-    portrait.hidden = true;
-    fallback.hidden = false;
+    sourceIndex += 1;
+    if (sourceIndex < imageSources.length) {
+      portrait.src = imageSources[sourceIndex];
+    } else {
+      portrait.hidden = true;
+      fallback.hidden = false;
+    }
   };
+  portrait.src = imageSources[sourceIndex];
 }
 
 function persistGame(game) {

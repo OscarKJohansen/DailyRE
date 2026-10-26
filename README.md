@@ -23,12 +23,12 @@ The character data is intentionally stored locally in `script.js` so the game wo
 
 ## Adding character artwork
 
-Add licensed or user-owned JPG files to `images/characters/` using the lowercase character name:
+Add licensed or user-owned WebP files to `images/characters/` using the lowercase character name. JPG is supported as a fallback:
 
 ```text
-images/characters/jill-valentine.jpg
-images/characters/ramon-salazar.jpg
-images/characters/lady-dimitrescu.jpg
+images/characters/jill-valentine.webp
+images/characters/ramon-salazar.webp
+images/characters/lady-dimitrescu.webp
 ```
 
-The portrait is revealed after a completed case. If an image is not available, the game displays the character's initials instead.
+The portrait is revealed after a completed case. If a WebP and JPG image are not available, the game displays the character's initials instead.
