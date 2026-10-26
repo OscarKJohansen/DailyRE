@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0b0d0e" />
+    <title>OUTBREAK // Daily Resident Evil</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="noise"></div>
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="Outbreak home">
+        <span class="brand-mark">+</span>
+        <span>OUTBREAK<small>DAILY RESIDENT EVIL</small></span>
+      </a>
+      <div class="topbar-meta">
+        <span class="live-dot"></span>
+        <span>CASE FILE <strong id="case-number">#00274</strong></span>
+        <span class="separator">/</span>
+        <span id="date-label">OCT 26, 2026</span>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow"><span class="eyebrow-line"></span> IDENTIFY THE SURVIVOR</p>
+          <h1>WHO IS<br /><em>THE TARGET?</em></h1>
+          <p class="hero-description">A new Resident Evil character is selected every day. Make a guess, read the evidence, and close the case in as few attempts as possible.</p>
+        </div>
+        <div class="hero-stamp" aria-hidden="true">
+          <span>R.E.</span>
+          <strong>CLASSIFIED</strong>
+          <small>PROPERTY OF<br />R.P.D. ARCHIVES</small>
+        </div>
+      </section>
+
+      <section class="game-layout">
+        <div class="game-panel">
+          <div class="panel-topline">
+            <span>NEW TRANSMISSION</span>
+            <span class="attempt-count"><span id="attempt-count">0</span> / 6 ATTEMPTS</span>
+          </div>
+          <div id="game-state">
+            <label class="guess-label" for="guess-input">ENTER A CHARACTER NAME</label>
+            <div class="search-wrap">
+              <span class="search-icon">⌕</span>
+              <input id="guess-input" type="text" autocomplete="off" placeholder="e.g. Jill Valentine" aria-describedby="search-hint" />
+              <button id="submit-guess" type="button">SUBMIT <span>↗</span></button>
+              <div id="suggestions" class="suggestions" role="listbox" aria-label="Character suggestions"></div>
+            </div>
+            <p id="search-hint" class="input-hint">TYPE TO SEARCH THE ARCHIVES · <span id="remaining-count">40</span> CHARACTERS INDEXED</p>
+          </div>
+          <div id="message" class="message" role="status" aria-live="polite"></div>
+          <div class="legend">
+            <span class="legend-title">EVIDENCE KEY</span>
+            <span><i class="legend-swatch exact"></i> MATCH</span>
+            <span><i class="legend-swatch close"></i> CLOSE</span>
+            <span><i class="legend-swatch miss"></i> NO MATCH</span>
+          </div>
+          <div class="table-wrap">
+            <div class="guess-grid grid-header" aria-hidden="true">
+              <span>CHARACTER</span><span>ERA</span><span>ROLE</span><span>AFFILIATION</span><span>DEBUT</span><span>RESULT</span>
+            </div>
+            <div id="guess-list" class="guess-list">
+              <div class="empty-state"><span class="crosshair">⊕</span><p>Your investigation starts here.</p><small>Submit a character to reveal evidence.</small></div>
+            </div>
+          </div>
+        </div>
+
+        <aside class="side-panel">
+          <div class="daily-card">
+            <div class="card-heading"><span>DAILY STATUS</span><span class="status-tag">ACTIVE</span></div>
+            <div class="stat-block"><span class="stat-number" id="streak-number">07</span><span class="stat-label">DAY<br />STREAK</span></div>
+            <div class="stat-rule"></div>
+            <div class="card-footer"><span>NEXT CASE OPENS IN</span><strong id="countdown">23:41:08</strong></div>
+          </div>
+          <div class="archive-card">
+            <p class="eyebrow">FIELD NOTES</p>
+            <p>Every character has a story. Some are survivors. Some are symptoms.</p>
+            <div class="archive-lines"><span>ARCHIVE STATUS</span><strong><span id="archive-count">40</span> / <span id="archive-count-total">40</span> LOADED</strong></div>
+            <div class="archive-lines"><span>DIFFICULTY</span><strong>STANDARD</strong></div>
+          </div>
+          <div class="tip-card"><span class="tip-icon">!</span><p><strong>HOW TO PLAY</strong><br />Green evidence is an exact match. Amber means you're circling the answer.</p></div>
+        </aside>
+      </section>
+    </main>
+    <section id="result-screen" class="result-screen" hidden>
+      <div class="result-inner">
+        <p class="eyebrow"><span class="eyebrow-line"></span> TRANSMISSION RECEIVED</p>
+        <div class="result-icon">✓</div>
+        <p class="result-kicker" id="result-kicker">CASE CLOSED</p>
+        <h2 id="result-title">TARGET IDENTIFIED</h2>
+        <p id="result-copy" class="result-copy"></p>
+        <div class="result-stats">
+          <div><strong id="result-attempts">03</strong><span>ATTEMPTS</span></div>
+          <div><strong id="result-streak">08</strong><span>DAY STREAK</span></div>
+          <div><strong id="result-rate">100%</strong><span>ACCURACY</span></div>
+        </div>
+        <div class="result-actions">
+          <button id="share-result" class="primary-action" type="button">SHARE RESULT <span>↗</span></button>
+          <button id="close-result" class="secondary-action" type="button">VIEW CASE ARCHIVE</button>
+        </div>
+        <div class="case-archive">
+          <div class="archive-title"><span>OTHER CASES</span><span>ARCHIVE // 03</span></div>
+          <div class="case-cards">
+            <button type="button" class="case-card"><span class="case-card-number">#00273</span><strong>THE R.P.D. FILES</strong><small>CASE CLOSED · 01:42</small></button>
+            <button type="button" class="case-card"><span class="case-card-number">#00272</span><strong>THE LOST S.T.A.R.S.</strong><small>CASE CLOSED · 02:18</small></button>
+            <button type="button" class="case-card locked"><span class="case-card-number">#00271</span><strong>CLASSIFIED FILE</strong><small>ARCHIVE LOCKED</small></button>
+          </div>
+        </div>
+      </div>
+    </section>
+    <footer><span>OUTBREAK // DAILY RESIDENT EVIL</span><span>NO SPOILERS. JUST SURVIVORS.</span></footer>
+    <script src="script.js"></script>
+  </body>
+</html>
