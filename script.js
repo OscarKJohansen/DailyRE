@@ -220,7 +220,10 @@ restoreGame();
 updateStreak();
 
 function updateCountdown() {
-  const tomorrow = new Date(date); tomorrow.setDate(date.getDate() + 1); const diff = tomorrow - new Date();
+  const now = new Date();
+  const tomorrow = new Date(now);
+  tomorrow.setHours(24, 0, 0, 0);
+  const diff = tomorrow - now;
   const hours = String(Math.floor(diff / 3600000)).padStart(2, "0");
   const minutes = String(Math.floor((diff % 3600000) / 60000)).padStart(2, "0");
   const seconds = String(Math.floor((diff % 60000) / 1000)).padStart(2, "0");
