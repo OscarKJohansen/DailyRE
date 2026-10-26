@@ -42,6 +42,8 @@ const characters = [
 
 const date = new Date();
 const daySeed = Math.floor(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / 86400000);
+const launchDaySeed = Math.floor(Date.UTC(2026, 9, 26) / 86400000);
+const caseNumber = Math.max(1, daySeed - launchDaySeed + 1);
 const target = getDailyTarget(daySeed);
 let guesses = [];
 const input = document.querySelector("#guess-input");
@@ -73,7 +75,7 @@ function getDailyTarget(seed) {
 }
 
 document.querySelector("#date-label").textContent = date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }).toUpperCase();
-document.querySelector("#case-number").textContent = `#${String(daySeed % 1000).padStart(5, "0")}`;
+document.querySelector("#case-number").textContent = `#${String(caseNumber).padStart(5, "0")}`;
 document.querySelector("#remaining-count").textContent = characters.length;
 document.querySelector("#archive-count").textContent = characters.length;
 document.querySelector("#archive-count-total").textContent = characters.length;
@@ -214,7 +216,7 @@ document.querySelector("#close-result").addEventListener("click", () => {
   document.body.classList.remove("case-complete");
 });
 document.querySelector("#share-result").addEventListener("click", async () => {
-  const text = `OUTBREAK // DAILY RESIDENT EVIL\nCASE #${String(daySeed % 1000).padStart(5, "0")} ${target.name} identified in ${guesses.length}/6 attempts.`;
+  const text = `OUTBREAK // DAILY RESIDENT EVIL\nCASE #${String(caseNumber).padStart(5, "0")} ${target.name} identified in ${guesses.length}/6 attempts.`;
   try {
     await navigator.clipboard.writeText(text);
     document.querySelector("#share-result").innerHTML = "RESULT COPIED <span>✓</span>";
