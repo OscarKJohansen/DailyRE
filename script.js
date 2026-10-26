@@ -124,6 +124,7 @@ function finishCase(won, persist = true) {
   }
   document.querySelector("#result-kicker").textContent = won ? "CASE CLOSED" : "CASE FILE SEALED";
   document.querySelector("#result-title").textContent = won ? "TARGET IDENTIFIED" : "TARGET ESCAPED";
+  showPortrait();
   document.querySelector("#result-copy").textContent = won
     ? `${target.name} was the subject of today's investigation. Your evidence trail led to the correct identification.`
     : `The target was ${target.name}. A new case file will be available when the archive resets tomorrow.`;
@@ -133,6 +134,23 @@ function finishCase(won, persist = true) {
   updateStreak();
   resultScreen.hidden = false;
   document.body.classList.add("case-complete");
+}
+
+function showPortrait() {
+  const portrait = document.querySelector("#result-portrait");
+  const fallback = document.querySelector("#portrait-fallback");
+  const filename = target.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  portrait.alt = `${target.name} archive portrait`;
+  portrait.src = `images/characters/${filename}.jpg`;
+  fallback.textContent = target.initials;
+  portrait.onload = () => {
+    portrait.hidden = false;
+    fallback.hidden = true;
+  };
+  portrait.onerror = () => {
+    portrait.hidden = true;
+    fallback.hidden = false;
+  };
 }
 
 function persistGame(game) {
