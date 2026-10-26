@@ -268,11 +268,22 @@ function resetRound() {
   document.querySelector("#attempt-count").textContent = "0";
   document.querySelector("#message").textContent = "";
   document.querySelector("#message").className = "message";
-  document.querySelector("#mode-label").textContent = `INFINITE MODE // ROUND ${String(infiniteRound + 1).padStart(2, "0")}`;
+  document.querySelector("#mode-label").textContent = infiniteMode
+    ? `INFINITE MODE // ROUND ${String(infiniteRound + 1).padStart(2, "0")}`
+    : "DAILY TRANSMISSION";
   document.querySelector("#mode-banner").hidden = !infiniteMode;
   resultScreen.hidden = true;
   document.body.classList.remove("case-complete");
   input.focus();
+}
+
+function exitInfiniteMode() {
+  infiniteMode = false;
+  infiniteRound = 0;
+  infiniteTargets = [];
+  target = getDailyTarget(daySeed);
+  resetRound();
+  restoreGame();
 }
 
 input.addEventListener("input", renderSuggestions);
@@ -310,6 +321,7 @@ document.querySelector("#continue-infinite").addEventListener("click", () => {
 });
 document.querySelector("#infinite-mode-launch").addEventListener("click", startInfiniteMode);
 document.querySelector("#infinite-archive-launch").addEventListener("click", startInfiniteMode);
+document.querySelector("#exit-infinite").addEventListener("click", exitInfiniteMode);
 document.querySelector("#share-result").addEventListener("click", async () => {
   const text = `OUTBREAK // DAILY RESIDENT EVIL\nCASE #${String(caseNumber).padStart(5, "0")} ${target.name} identified in ${guesses.length}/6 attempts.`;
   try {
