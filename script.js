@@ -128,8 +128,9 @@ function finishCase(won, persist = true) {
     ? `${target.name} was the subject of today's investigation. Your evidence trail led to the correct identification.`
     : `The target was ${target.name}. A new case file will be available when the archive resets tomorrow.`;
   document.querySelector("#result-attempts").textContent = String(guesses.length).padStart(2, "0");
-  document.querySelector("#result-streak").textContent = won ? "08" : "07";
+  document.querySelector("#result-streak").textContent = String(getCurrentStreak()).padStart(2, "0");
   document.querySelector("#result-rate").textContent = `${Math.round((won ? 1 : 0) * 100)}%`;
+  updateStreak();
   resultScreen.hidden = false;
   document.body.classList.add("case-complete");
 }
@@ -140,6 +141,26 @@ function persistGame(game) {
   } catch (error) {
     console.warn("Unable to save today's case progress.", error);
   }
+}
+
+function getCurrentStreak() {
+  let streak = 0;
+  for (let offset = 0; offset <= daySeed; offset += 1) {
+    let savedGame;
+    try {
+      savedGame = JSON.parse(localStorage.getItem(`outbreak-${daySeed - offset}`) || "null");
+    } catch (error) {
+      console.warn("Unable to read streak history.", error);
+      break;
+    }
+    if (!savedGame?.won) break;
+    streak += 1;
+  }
+  return streak;
+}
+
+function updateStreak() {
+  document.querySelector("#streak-number").textContent = String(getCurrentStreak()).padStart(2, "0");
 }
 
 function restoreGame() {
@@ -196,6 +217,7 @@ input.addEventListener("keydown", (event) => { if (event.key === "Enter") submit
 document.querySelector("#submit-guess").addEventListener("click", submitGuess);
 document.addEventListener("click", (event) => { if (!event.target.closest(".search-wrap")) suggestions.classList.remove("show"); });
 restoreGame();
+updateStreak();
 
 function updateCountdown() {
   const tomorrow = new Date(date); tomorrow.setDate(date.getDate() + 1); const diff = tomorrow - new Date();
