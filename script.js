@@ -116,6 +116,53 @@ function addGuess(guess) {
   list.prepend(row);
 }
 
+function finishCase(won, persist = true) {
+  if (persist) {
+    persistGame({ won, guesses: guesses.map((guess) => guess.name) });
+  }
+  document.querySelector("#result-kicker").textContent = won ? "CASE CLOSED" : "CASE FILE SEALED";
+  document.querySelector("#result-title").textContent = won ? "TARGET IDENTIFIED" : "TARGET ESCAPED";
+  document.querySelector("#result-copy").textContent = won
+    ? `${target.name} was the subject of today's investigation. Your evidence trail led to the correct identification.`
+    : `The target was ${target.name}. A new case file will be available when the archive resets tomorrow.`;
+  document.querySelector("#result-attempts").textContent = String(guesses.length).padStart(2, "0");
+  document.querySelector("#result-streak").textContent = won ? "08" : "07";
+  document.querySelector("#result-rate").textContent = `${Math.round((won ? 1 : 0) * 100)}%`;
+  resultScreen.hidden = false;
+  document.body.classList.add("case-complete");
+}
+
+function persistGame(game) {
+  try {
+    localStorage.setItem(storageKey, JSON.stringify(game));
+  } catch (error) {
+    console.warn("Unable to save today's case progress.", error);
+  }
+}
+
+function restoreGame() {
+  let savedGame;
+  try {
+    savedGame = JSON.parse(localStorage.getItem(storageKey) || "null");
+  } catch (error) {
+    console.warn("Unable to read today's saved case progress.", error);
+    return;
+  }
+  if (!savedGame || !Array.isArray(savedGame.guesses)) return;
+
+  const savedGuesses = savedGame.guesses
+    .map((name) => characters.find((character) => character.name === name))
+    .filter(Boolean);
+  savedGuesses.forEach((guess) => addGuess(guess));
+  guesses = savedGuesses;
+  document.querySelector("#attempt-count").textContent = guesses.length;
+  if (savedGame.won === true || savedGame.won === false) {
+    input.disabled = true;
+    document.querySelector("#submit-guess").disabled = true;
+    finishCase(savedGame.won, false);
+  }
+}
+
 function submitGuess() {
   suggestions.classList.remove("show");
   const guess = characters.find((character) => character.name.toLowerCase() === input.value.trim().toLowerCase());
@@ -123,6 +170,7 @@ function submitGuess() {
   if (guesses.some((item) => item.name === guess.name)) { message.textContent = "DOSSIER ALREADY REVIEWED — TRY ANOTHER NAME."; return; }
   guesses.push(guess);
   addGuess(guess);
+  persistGame({ guesses: guesses.map((item) => item.name) });
   document.querySelector("#attempt-count").textContent = guesses.length;
   input.value = "";
   if (guess.name === target.name) {
@@ -139,26 +187,13 @@ function submitGuess() {
   } else {
     message.textContent = "EVIDENCE LOGGED — THE TRAIL CONTINUES.";
   }
-
-  function finishCase(won) {
-    localStorage.setItem(storageKey, JSON.stringify({ won, attempts: guesses.length }));
-    document.querySelector("#result-kicker").textContent = won ? "CASE CLOSED" : "CASE FILE SEALED";
-    document.querySelector("#result-title").textContent = won ? "TARGET IDENTIFIED" : "TARGET ESCAPED";
-    document.querySelector("#result-copy").textContent = won
-      ? `${target.name} was the subject of today's investigation. Your evidence trail led to the correct identification.`
-      : `The target was ${target.name}. A new case file will be available when the archive resets tomorrow.`;
-    document.querySelector("#result-attempts").textContent = String(guesses.length).padStart(2, "0");
-    document.querySelector("#result-streak").textContent = won ? "08" : "07";
-    document.querySelector("#result-rate").textContent = `${Math.round((won ? 1 : 0) * 100)}%`;
-    resultScreen.hidden = false;
-    document.body.classList.add("case-complete");
-  }
 }
 
 input.addEventListener("input", renderSuggestions);
 input.addEventListener("keydown", (event) => { if (event.key === "Enter") submitGuess(); if (event.key === "Escape") suggestions.classList.remove("show"); });
 document.querySelector("#submit-guess").addEventListener("click", submitGuess);
 document.addEventListener("click", (event) => { if (!event.target.closest(".search-wrap")) suggestions.classList.remove("show"); });
+restoreGame();
 
 function updateCountdown() {
   const tomorrow = new Date(date); tomorrow.setDate(date.getDate() + 1); const diff = tomorrow - new Date();
