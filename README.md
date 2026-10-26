@@ -16,6 +16,7 @@ Open `index.html` in a browser. No build step or package installation is require
 - Case-complete results screen with attempts, streak, accuracy, and share result
 - Optional case-complete character portraits from `images/characters/`
 - Previous case archive cards
+- Infinite Mode for unlimited extra rounds without changing the daily case or streak
 - Responsive layout for mobile and desktop
 
 The character data is intentionally stored locally in `script.js` so the game works on GitHub Pages and does not depend on an external API becoming unavailable. The archive can later be moved to a JSON endpoint or a server-backed admin system without changing the game UI.

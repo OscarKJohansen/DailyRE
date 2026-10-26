@@ -44,8 +44,10 @@ const date = new Date();
 const daySeed = Math.floor(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / 86400000);
 const launchDaySeed = Math.floor(Date.UTC(2026, 9, 26) / 86400000);
 const caseNumber = Math.max(1, daySeed - launchDaySeed + 1);
-const target = getDailyTarget(daySeed);
+let target = getDailyTarget(daySeed);
 let guesses = [];
+let infiniteMode = false;
+let infiniteRound = 0;
 const input = document.querySelector("#guess-input");
 const suggestions = document.querySelector("#suggestions");
 const list = document.querySelector("#guess-list");
@@ -119,19 +121,25 @@ function addGuess(guess) {
 }
 
 function finishCase(won, persist = true) {
-  if (persist) {
+  if (persist && !infiniteMode) {
     persistGame({ won, guesses: guesses.map((guess) => guess.name) });
   }
-  document.querySelector("#result-kicker").textContent = won ? "CASE CLOSED" : "CASE FILE SEALED";
-  document.querySelector("#result-title").textContent = won ? "TARGET IDENTIFIED" : "TARGET ESCAPED";
+  document.querySelector("#result-kicker").textContent = infiniteMode ? `INFINITE MODE // ROUND ${String(infiniteRound + 1).padStart(2, "0")}` : won ? "CASE CLOSED" : "CASE FILE SEALED";
+  document.querySelector("#result-title").textContent = infiniteMode ? (won ? "ROUND CLEARED" : "ROUND OVER") : won ? "TARGET IDENTIFIED" : "TARGET ESCAPED";
   showPortrait();
   document.querySelector("#result-copy").textContent = won
-    ? `${target.name} was the subject of today's investigation. Your evidence trail led to the correct identification.`
-    : `The target was ${target.name}. A new case file will be available when the archive resets tomorrow.`;
+    ? infiniteMode
+      ? `${target.name} identified. Continue into another character case without affecting your daily archive.`
+      : `${target.name} was the subject of today's investigation. Your evidence trail led to the correct identification.`
+    : infiniteMode
+      ? `${target.name} was the target. Infinite Mode ends this run, but your daily case remains untouched.`
+      : `The target was ${target.name}. A new case file will be available when the archive resets tomorrow.`;
   document.querySelector("#result-attempts").textContent = String(guesses.length).padStart(2, "0");
-  document.querySelector("#result-streak").textContent = String(getCurrentStreak()).padStart(2, "0");
+  document.querySelector("#result-streak").textContent = infiniteMode ? String(infiniteRound + (won ? 1 : 0)).padStart(2, "0") : String(getCurrentStreak()).padStart(2, "0");
   document.querySelector("#result-rate").textContent = `${Math.round((won ? 1 : 0) * 100)}%`;
   updateStreak();
+  document.querySelector("#continue-infinite").hidden = !infiniteMode || !won;
+  document.querySelector("#share-result").hidden = infiniteMode;
   resultScreen.hidden = false;
   document.body.classList.add("case-complete");
 }
@@ -211,7 +219,7 @@ function submitGuess() {
   if (guesses.some((item) => item.name === guess.name)) { message.textContent = "DOSSIER ALREADY REVIEWED — TRY ANOTHER NAME."; return; }
   guesses.push(guess);
   addGuess(guess);
-  persistGame({ guesses: guesses.map((item) => item.name) });
+  if (!infiniteMode) persistGame({ guesses: guesses.map((item) => item.name) });
   document.querySelector("#attempt-count").textContent = guesses.length;
   input.value = "";
   if (guess.name === target.name) {
@@ -228,6 +236,28 @@ function submitGuess() {
   } else {
     message.textContent = "EVIDENCE LOGGED — THE TRAIL CONTINUES.";
   }
+}
+
+function startInfiniteMode() {
+  infiniteMode = true;
+  infiniteRound = 0;
+  target = getDailyTarget(daySeed + infiniteRound + 1);
+  resetRound();
+}
+
+function resetRound() {
+  guesses = [];
+  list.innerHTML = '<div class="empty-state"><span class="crosshair">⊕</span><p>Your investigation starts here.</p><small>Submit a character to reveal evidence.</small></div>';
+  input.value = "";
+  input.disabled = false;
+  document.querySelector("#submit-guess").disabled = false;
+  document.querySelector("#attempt-count").textContent = "0";
+  document.querySelector("#message").textContent = "";
+  document.querySelector("#message").className = "message";
+  document.querySelector(".panel-topline span:first-child").textContent = `INFINITE MODE // ROUND ${String(infiniteRound + 1).padStart(2, "0")}`;
+  resultScreen.hidden = true;
+  document.body.classList.remove("case-complete");
+  input.focus();
 }
 
 input.addEventListener("input", renderSuggestions);
@@ -258,6 +288,12 @@ document.querySelector("#close-result").addEventListener("click", () => {
   resultScreen.hidden = true;
   document.body.classList.remove("case-complete");
 });
+document.querySelector("#continue-infinite").addEventListener("click", () => {
+  infiniteRound += 1;
+  target = getDailyTarget(daySeed + infiniteRound + 1);
+  resetRound();
+});
+document.querySelector("#result-screen .case-card").addEventListener("click", startInfiniteMode);
 document.querySelector("#share-result").addEventListener("click", async () => {
   const text = `OUTBREAK // DAILY RESIDENT EVIL\nCASE #${String(caseNumber).padStart(5, "0")} ${target.name} identified in ${guesses.length}/6 attempts.`;
   try {
